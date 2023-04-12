@@ -16,6 +16,10 @@ function ChangePassword() {
 		setError({error:false,message:""})
 	}
 
+
+
+
+	
 	const handleSubmit=async()=>{
 		if(!(form.newPassword===form.confirmPassword)){
 			return setError({error:true,message:"Passwords do not match"})

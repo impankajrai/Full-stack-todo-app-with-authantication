@@ -188,6 +188,7 @@ module.exports.changePassword = async (req, res) => {
 //************************************* CHECK ALREADY LOGGED IN USER ********************************************** */
 module.exports.isAuthanticated = async (req, res) => {
 	const {user}=req;
+
 	if(user){
 		const sql=`select * from users where id = ? and email = ?`;
 		connection.query(sql,[user.id,user.email],(err,result)=>{

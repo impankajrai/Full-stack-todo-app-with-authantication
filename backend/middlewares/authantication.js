@@ -19,7 +19,6 @@ const authantication = (req, res, next) => {
                 if(data?.id){
                     const sql='select * from users where id=?';
                     connection.query(sql,[data.id],(err,result)=>{
-                        console.log(result)
                         if(err){
                             console.log(err)
                             return res.status(500).json({success:false,message:"invalid user"});
@@ -31,7 +30,6 @@ const authantication = (req, res, next) => {
                         }
                     })
                 }else{
-                    console.log("!data.id helo")
                     return res.status(500).json({success:false,message:"invalid user2"});
                 }
 

@@ -1,19 +1,14 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import { v4 as uuidv4 } from 'uuid';
+import apiRequest from "../../utils/apiRequest";
+
 
 //fetch all the todos according to user =========================================================
 export const fetchTodos = createAsyncThunk(
 	"fetchtodos/todos",
 	async () => {
-		const response = await fetch(
-			`${process.env.REACT_APP_BACKEND_BASE_URL}/todo/fetch`,
-			{
-				method: "get",
-				credentials: "include",
-			}
-		);
-		const result = await response.json();
+		const result = await apiRequest.get('/todo/fetch')
 		if (result.success) {
 			return result.todos;
 		} else {
@@ -33,19 +28,7 @@ export const createTodo = createAsyncThunk(
             status:"pending",
             id: uuidv4()
         }
-		const response = await fetch(
-			`${process.env.REACT_APP_BACKEND_BASE_URL}/todo/create`,
-			{
-				method: "post",
-				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-				},
-				body: JSON.stringify(data),
-				credentials: "include",
-			}
-		);
-        const result = await response.json();
+        const result = await apiRequest.post('/todo/create',data)
         return {success:result.success,message:result.message,data};
 		
 	}
@@ -55,23 +38,8 @@ export const createTodo = createAsyncThunk(
 export const updateTodo = createAsyncThunk(
 	"update/todos",
 	async (data) => {
-        console.log(data)
-
-		const response = await fetch(
-			`${process.env.REACT_APP_BACKEND_BASE_URL}/todo/update`,
-			{
-				method: "post",
-				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-				},
-				body: JSON.stringify(data),
-				credentials: "include",
-			}
-		);
-        const result = await response.json();
+        const result = await apiRequest.post('/todo/update',data);
         return {success:result.success,message:result.message,data};
-		
 	}
 );
 
@@ -79,18 +47,20 @@ const todoSlice = createSlice({
 	name: "auth",
 	initialState:[],
 	reducers: {},
-    extraReducers:{
-        [fetchTodos.fulfilled]: (state, {payload}) => {
+    extraReducers:(builder)=>{
+		builder.addCase(fetchTodos.fulfilled,  (state, {payload}) => {
             console.log(payload)
             payload.map(todo=>state.push(todo))
-        },
-        [createTodo.fulfilled]: (state, {payload}) => {
+        });
+
+        builder.addCase(createTodo.fulfilled,(state, {payload}) => {
             if(payload.success){
                 state.push(payload.data)
                 toast.success(payload.message);
             }
-        },
-        [updateTodo.fulfilled]: (state, {payload}) => {
+        });
+
+        builder.addCase(updateTodo.fulfilled, (state, {payload}) => {
             console.log(payload)
             if(payload.success){
                 state.forEach((items)=>{
@@ -100,7 +70,7 @@ const todoSlice = createSlice({
                    })
                    toast.success(payload.message);
             }
-        },
+        });
     }
 })
 

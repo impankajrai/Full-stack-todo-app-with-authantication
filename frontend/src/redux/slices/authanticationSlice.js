@@ -1,18 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
+import apiRequest from "../../utils/apiRequest";
 
 //fetch already loggedin user (by cookies) =========================================================
 export const fetchLoggedInUser = createAsyncThunk(
 	"fetchloggedin/user",
 	async () => {
-		const response = await fetch(
-			`${process.env.REACT_APP_BACKEND_BASE_URL}/user/isauth`,
-			{
-				method: "post",
-				credentials: "include",
-			}
-		);
-		const result = await response.json();
+		const result = await apiRequest.post_withoutData('/user/isauth');
 		if (result.success) {
 			return result.user;
 		} else {
@@ -24,19 +18,7 @@ export const fetchLoggedInUser = createAsyncThunk(
 //login user =======================================================================================
 export const login = createAsyncThunk("login", async (user) => {
 	const { email, password } = user;
-	const res = await fetch(
-		`${process.env.REACT_APP_BACKEND_BASE_URL}/user/signin`,
-		{
-			method: "post",
-			credentials: "include",
-			headers: {
-				"Content-Type": "application/json",
-				Accept: "application/json",
-			},
-			body: JSON.stringify({ email, password }),
-		}
-	);
-	const response = await res.json();
+	const response = await apiRequest.post('/user/signin',{email,password});
 	if (response.success) {
 		toast.success(response.message);
 		return response.user;
@@ -48,20 +30,7 @@ export const login = createAsyncThunk("login", async (user) => {
 
 //update user ========================================================================================================
 export const updateUser = createAsyncThunk("updateUser", async (value) => {
-	const response = await fetch(
-		`${process.env.REACT_APP_BACKEND_BASE_URL}/user/update`,
-		{
-			method: "post",
-			headers: {
-				// "Content-Type": "application/json",  ///remove this line for formdata upload
-				Accept: "application/json",
-			},
-			body: value,
-			credentials: "include",
-		}
-	);
-
-	const result = await response.json();
+	const result = await apiRequest.post_formData('/user/update',value);
 	if (result.success) {
 		toast.success(result.message);
 	} else {
@@ -76,38 +45,13 @@ export const updateUser = createAsyncThunk("updateUser", async (value) => {
 export const changePassword = createAsyncThunk(
 	"user/changepassword",
 	async ({ oldPassword, newPassword }) => {
-		const response = await fetch(
-			`${process.env.REACT_APP_BACKEND_BASE_URL}/user/changepassword`,
-			{
-				method: "post",
-				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-				},
-				body: JSON.stringify({ oldPassword, newPassword }),
-				credentials: "include",
-			}
-		);
-
-		const result = await response.json();
+		const result = await apiRequest.post('/user/changepassword',{oldPassword,newPassword});
 		return { success: result.success, message: result.message };
 	}
 );
 //Change password ========================================================================================================
 export const logout = createAsyncThunk("user/logout",async () => {
-		const response = await fetch(
-			`${process.env.REACT_APP_BACKEND_BASE_URL}/user/logout`,
-			{
-				method: "get",
-				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-				},
-				credentials: "include",
-			}
-		);
-
-		const result = await response.json();
+		const result = await apiRequest.get('/user/logout');
 		return { success: result.success, message: result.message };
 	}
 );
